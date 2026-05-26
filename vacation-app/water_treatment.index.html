@@ -1,0 +1,902 @@
+code
+Html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تشغيل المحطة - نظام الإجازات</title>
+    <!-- Tailwind CSS للواجهة الجذابة والألوان التفاعلية -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- مكتبة الأيقونات الجذابة FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- خط Cairo العربي المميز -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0369a1 100%);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-12">
+
+    <!-- الرأس الرئيسي بتصميم ملون وجذاب مع طابع مائي تقني -->
+    <header class="gradient-bg text-white shadow-2xl py-8 px-4 mb-8 text-center border-b border-cyan-500/30 relative overflow-hidden">
+        <!-- زر تغيير اللغة ذو مظهر جذاب ومتناسق -->
+        <div class="absolute top-4 start-4 z-20">
+            <button onclick="toggleLanguage()" class="bg-slate-800/80 hover:bg-slate-750 text-white font-bold py-2 px-4 rounded-xl border border-slate-700/60 flex items-center gap-2 text-xs transition duration-200 shadow-md">
+                <i class="fa-solid fa-globe text-cyan-400"></i>
+                <span id="langBtnText">English</span>
+            </button>
+        </div>
+
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
+        
+        <div class="relative z-10">
+            <div class="inline-flex items-center justify-center p-3 bg-cyan-500/10 rounded-2xl border border-cyan-500/30 mb-3">
+                <i class="fa-solid fa-droplet text-4xl text-cyan-400 animate-bounce"></i>
+            </div>
+            <h1 data-i18n="title" class="text-3xl md:text-4xl font-extrabold tracking-wide drop-shadow-md">منظومة إجازات محطة المعالجة</h1>
+            <p data-i18n="subtitle" class="text-sm mt-2 text-cyan-300 font-medium tracking-widest uppercase">نظام الـ 7 مجموعات المتقابلة الذكي</p>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4">
+        
+        <!-- أزرار التنقل الملونة -->
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-10">
+            <button id="btnWorkerPortal" onclick="switchPortal('worker')" class="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg transition duration-300 transform hover:scale-105 bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20 border border-cyan-400/30">
+                <i class="fa-solid fa-user-clock ms-2"></i> <span data-i18n="btnWorker">بوابة العامل (طلب إجازة)</span>
+            </button>
+            <button id="btnAdminPortal" onclick="switchPortal('admin')" class="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg transition duration-300 transform hover:scale-105 bg-slate-800 text-slate-300 hover:text-white border border-slate-700 hover:bg-slate-750">
+                <i class="fa-solid fa-user-shield ms-2"></i> <span data-i18n="btnAdmin">بوابة المسؤول</span>
+            </button>
+        </div>
+
+        <!-- ==================== واجهة العامل الملونة ==================== -->
+        <div id="workerPortal" class="portal-section">
+            <div class="max-w-xl mx-auto bg-slate-800/80 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden p-8 border border-slate-700/85">
+                <div class="text-center mb-6">
+                    <span class="inline-block p-4 bg-blue-500/10 text-blue-400 rounded-full mb-3 border border-blue-500/20">
+                        <i class="fa-solid fa-calendar-plus text-3xl"></i>
+                    </span>
+                    <h2 data-i18n="reqTitle" class="text-2xl font-bold text-white">طلب إجازة جديد</h2>
+                    <p data-i18n="reqSub" class="text-xs text-slate-400 mt-1">يرجى إدخال بياناتك بدقة للتحقق التلقائي من توافر الوردية</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label data-i18n="idLabel" class="block text-slate-300 font-bold mb-2 text-sm"><i class="fa-solid fa-id-card text-cyan-400 ms-1"></i> كود التعريف الخاص بك:</label>
+                        <input type="text" id="workerCode" placeholder="أدخل كودك (مثال: 21859)" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-cyan-400 focus:outline-none text-center font-extrabold text-xl text-cyan-300 tracking-widest placeholder:text-slate-600">
+                    </div>
+                    <div>
+                        <label data-i18n="dateLabel" class="block text-slate-300 font-bold mb-2 text-sm"><i class="fa-solid fa-calendar-day text-cyan-400 ms-1"></i> تاريخ الإجازة المطلوب:</label>
+                        <input type="date" id="vacationDate" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl focus:ring-2 focus:ring-cyan-400 focus:outline-none text-center font-bold text-slate-200">
+                    </div>
+                    
+                    <button onclick="checkAndVerifyRequest()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold py-4 rounded-2xl transition duration-300 shadow-lg shadow-cyan-500/30 transform active:scale-95 text-lg">
+                        <i class="fa-solid fa-magnifying-glass-chart ms-1"></i> <span data-i18n="btnVerify">التحقق من الإتاحة والطلب</span>
+                    </button>
+                </div>
+
+                <!-- صندوق نتيجة التحقق التفاعلي والملون -->
+                <div id="resultBox" class="mt-8 hidden p-5 rounded-2xl border text-center transition-all duration-300 transform scale-100 opacity-100">
+                    <p id="resultStatus" class="text-xl font-black mb-4"></p>
+                    <div id="resultDetails" class="mb-5"></div>
+                    <button id="btnSubmitRequest" onclick="finalizeRequestSubmission()" class="hidden mx-auto bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-extrabold py-3 px-8 rounded-xl shadow-lg shadow-emerald-500/20 transition duration-150 transform active:scale-95">
+                        <i class="fa-solid fa-circle-check ms-1"></i> <span data-i18n="confirmSubmitBtn">تأكيد وإرسال الطلب</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== واجهة المسؤول الملونة ==================== -->
+        <div id="adminPortal" class="portal-section hidden">
+            <!-- التحقق من كلمة مرور المسؤول -->
+            <div id="adminAuthSection" class="max-w-md mx-auto bg-slate-800 rounded-3xl shadow-2xl p-8 border border-slate-700 text-center">
+                <span class="text-5xl text-amber-400 mb-4 inline-block"><i class="fa-solid fa-key"></i></span>
+                <h2 data-i18n="adminLoginTitle" class="text-2xl font-bold text-white mt-2 mb-3">تسجيل دخول المسؤول</h2>
+                <p data-i18n="adminLoginSub" class="text-sm text-slate-400 mb-6">هذه المنطقة محمية وخاصة بالإدارة لمراجعة الطلبات والورديات.</p>
+                <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl mb-5 text-center font-bold text-white tracking-widest">
+                <button onclick="verifyAdminPassword()" class="w-full bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white font-extrabold py-4 rounded-2xl shadow-lg transition">
+                    <span data-i18n="btnLogin">تسجيل الدخول</span>
+                </button>
+                <p id="authError" data-i18n="passwordError" class="text-red-400 font-bold text-sm mt-3 hidden"><i class="fa-solid fa-triangle-exclamation ms-1"></i> كلمة المرور غير صحيحة!</p>
+            </div>
+
+            <!-- لوحة تحكم المسؤول (تظهر بعد الدخول الناجح) -->
+            <div id="adminDashboard" class="hidden space-y-8">
+                
+                <!-- لوحة الإحصائيات وفحص قوة الورديات -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-3xl shadow-xl border border-slate-700 relative overflow-hidden">
+                        <div class="absolute right-2 bottom-2 text-slate-700/10 text-8xl"><i class="fa-solid fa-bell-concierge"></i></div>
+                        <h3 data-i18n="pendingCountTitle" class="font-bold text-slate-300 text-base mb-2"><i class="fa-solid fa-circle-notch text-amber-500 animate-spin ms-1"></i> طلبات معلقة بانتظارك</h3>
+                        <p data-i18n="pendingCountSub" class="text-xs text-slate-400">الطلبات الحالية التي تتطلب قراراً:</p>
+                        <p id="pendingCountBadge" class="text-5xl font-black text-amber-400 mt-2">0</p>
+                    </div>
+
+                    <!-- أداة معرفة عدد العمال بالوردية بعد الإجازات -->
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-3xl shadow-xl border border-slate-700 md:col-span-2">
+                        <h3 data-i18n="checkShiftTitle" class="font-bold text-slate-200 text-base mb-3"><i class="fa-solid fa-people-group text-cyan-400 ms-1"></i> فحص قوة الوردية ليوم معين</h3>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="date" id="checkDateInput" class="p-3 bg-slate-900 border border-slate-700 rounded-xl flex-grow text-center text-slate-200 font-bold focus:ring-2 focus:ring-cyan-400 focus:outline-none">
+                            <button onclick="checkShiftStrength()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-3 px-6 rounded-xl shadow transition duration-200">
+                                <i class="fa-solid fa-calculator ms-1"></i> <span data-i18n="btnCalculate">احسب القوة المتبقية</span>
+                            </button>
+                        </div>
+                        <div id="shiftStrengthResult" class="mt-4 hidden space-y-2 text-sm">
+                            <!-- تعبئة تفاعلية -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- إدارة الطلبات المعلقة (تم تحويلها لبطاقات تفاعلية متكاملة) -->
+                <div class="bg-slate-800 rounded-3xl shadow-xl border border-slate-700 overflow-hidden">
+                    <div class="bg-slate-750 px-6 py-4 border-b border-slate-700 flex justify-between items-center flex-wrap gap-2">
+                        <h3 data-i18n="tableTitle" class="font-bold text-white text-lg">
+                            <i class="fa-regular fa-clock text-amber-400 ms-1"></i> طلبات الإجازات القائمة وتحليل الوردية المقترنة
+                        </h3>
+                        <button onclick="clearAllExpiredRequests()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/25 text-xs font-bold py-2 px-4 rounded-xl transition">
+                            <i class="fa-solid fa-dumpster-fire ms-1"></i> <span data-i18n="btnClearOld">شطب وتنظيف المتراكم القديم</span>
+                        </button>
+                    </div>
+                    
+                    <!-- حاوية البطاقات التفاعلية لطلبات المسؤول -->
+                    <div id="pendingRequestsCardsContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+                        <!-- هنا يتم توليد البطاقات ذكياً من الجافا سكربت -->
+                    </div>
+                </div>
+
+                <!-- أرشيف الطلبات المكتملة -->
+                <div class="bg-slate-800 rounded-3xl shadow-xl border border-slate-700 overflow-hidden">
+                    <div class="bg-slate-750 px-6 py-4 border-b border-slate-700">
+                        <h3 data-i18n="archiveTitle" class="font-bold text-slate-300 text-base"><i class="fa-solid fa-box-archive text-indigo-400 ms-1"></i> أرشيف الطلبات المعالجة (تلقائي)</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-start border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/50 text-slate-400 text-xs border-b border-slate-700">
+                                    <th data-i18n="thCode" class="p-4">الكود</th>
+                                    <th data-i18n="thName" class="p-4">الاسم</th>
+                                    <th data-i18n="thDate" class="p-4">التاريخ</th>
+                                    <th data-i18n="thDecision" class="p-4">حالة القرار</th>
+                                    <th data-i18n="thTime" class="p-4">وقت الإجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archivedRequestsTable" class="text-sm divide-y divide-slate-700/50">
+                                <!-- تعبئة ديناميكية -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- كود المنطق والبيانات التفاعلي -->
+    <script>
+        // قاعدة بيانات الـ 21 عامل من الصورة المرفقة
+        const workersDatabase = [
+            { code: "21859", name: "Abad allah baker", group: 1 },
+            { code: "23972", name: "Sherif Elbata", group: 1 },
+            { code: "23567", name: "Mostafa Shehata", group: 1 },
+            { code: "21444", name: "Melad reyad", group: 2 },
+            { code: "20330", name: "REDA HAMDY", group: 2 },
+            { code: "21830", name: "Abd El Qader Mohamed", group: 2 },
+            { code: "21825", name: "Mohamed Abdo Gewadaa", group: 3 },
+            { code: "22425", name: "Mohamed El Sherbeny", group: 3 },
+            { code: "22476", name: "Mohamed Abdullhakim", group: 3 },
+            { code: "22248", name: "El Said Eid El Said Gaafar", group: 4 },
+            { code: "21788", name: "Reda Eid Abd El Moteey", group: 4 },
+            { code: "26217", name: "Khaled Reda Ibrahim", group: 4 },
+            { code: "20171", name: "Samir maher", group: 5 },
+            { code: "22293", name: "Bilal Mohamed Abdullghany", group: 5 },
+            { code: "24227", name: "Amr Mohamed", group: 5 },
+            { code: "25942", name: "Mohamed Samir AbdElhamid", group: 6 },
+            { code: "23566", name: "Wael Mohamed", group: 6 },
+            { code: "24375", name: "Osama Bilal", group: 6 },
+            { code: "20238", name: "Mndo mohamed", group: 7 },
+            { code: "22414", name: "Osama Ibrahim", group: 7 },
+            { code: "24139", name: "Ibrahim Elsayad", group: 7 }
+        ];
+
+        const groupWeekendMapping = {
+            1: { dayNum: 2, nameAr: "الثلاثاء", nameEn: "Tuesday" },
+            2: { dayNum: 5, nameAr: "الجمعة", nameEn: "Friday" },
+            3: { dayNum: 1, nameAr: "الاثنين", nameEn: "Monday" },
+            4: { dayNum: 4, nameAr: "الخميس", nameEn: "Thursday" },
+            5: { dayNum: 0, nameAr: "الأحد", nameEn: "Sunday" },
+            6: { dayNum: 3, nameAr: "الأربعاء", nameEn: "Wednesday" },
+            7: { dayNum: 6, nameAr: "السبت", nameEn: "Saturday" }
+        };
+
+        // ترجمة المصطلحات والنصوص لكلا اللغتين
+        const translations = {
+            ar: {
+                title: "منظومة إجازات محطة المعالجة",
+                subtitle: "نظام الـ 7 مجموعات المتقابلة الذكي",
+                btnWorker: "بوابة العامل (طلب إجازة)",
+                btnAdmin: "بوابة المسؤول",
+                reqTitle: "طلب إجازة جديد",
+                reqSub: "يرجى إدخال بياناتك بدقة للتحقق التلقائي من توافر الوردية",
+                idLabel: "كود التعريف الخاص بك:",
+                idPlaceholder: "أدخل كودك (مثال: 21859)",
+                dateLabel: "تاريخ الإجازة المطلوب:",
+                btnVerify: "التحقق من الإتاحة والطلب",
+                adminLoginTitle: "تسجيل دخول المسؤول",
+                adminLoginSub: "هذه المنطقة محمية وخاصة بالإدارة لمراجعة الطلبات والورديات.",
+                passwordPlaceholder: "أدخل كلمة المرور",
+                btnLogin: "تسجيل الدخول",
+                passwordError: "كلمة المرور غير صحيحة!",
+                pendingCountTitle: "طلبات معلقة بانتظارك",
+                pendingCountSub: "الطلبات الحالية التي تتطلب قراراً:",
+                checkShiftTitle: "فحص قوة الوردية ليوم معين",
+                checkDatePlaceholder: "اختر التاريخ",
+                btnCalculate: "احسب القوة المتبقية",
+                tableTitle: "طلبات الإجازات القائمة وتحليل الوردية المقترنة",
+                btnClearOld: "شطب وتنظيف المتراكم القديم",
+                archiveTitle: "أرشيف الطلبات المعالجة (تلقائي)",
+                thCode: "الكود",
+                thName: "الاسم",
+                thDate: "التاريخ",
+                thDecision: "حالة القرار",
+                thTime: "وقت الإجراء",
+                thGroup: "المجموعة",
+                thDay: "يوم الأسبوع",
+                btnApprove: "قبول الإجازة",
+                btnReject: "رفض الطلب",
+                langBtn: "English",
+                workerNameLabel: "اسم العامل:",
+                groupLabel: "المجموعة:",
+                scheduledShiftLabel: "الوردية المقررة في هذا اليوم:",
+                statusOffDay: "عطلة أسبوعية رسمية",
+                noLeavesCo: "لا توجد إجازات معتمدة لزملائك في الوردية المتقابلة لليوم المحدد. يمكنك تأكيد طلب الإجازة الآن.",
+                coWorkersLabel: "الزملاء المشتركون في نفس الوردية المتقابلة:",
+                onDuty: "على رأس العمل",
+                onVacation: "مجاز معتمد",
+                pendingRequest: "طلب معلق",
+                noPending: "لا توجد طلبات معلقة حالياً",
+                noPendingDesc: "كافة الطلبات تمت مراجعتها والبت فيها بنجاح.",
+                weeklyHolidayNotice: "إجازة رسمية كاملة اليوم.",
+                holidayNoticePrefix: "يوم",
+                holidayNoticeSuffix: "المجموعة التابع لها في عطلة رسمية معفاة من العمل. لا داعي لتقديم طلب إجازة.",
+                days: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+                shifts: ["الوردية الصباحية", "الوردية العصرية", "الوردية المسائية"],
+                errInvalidCodeTitle: "❌ الكود غير صحيح أو غير مسجل",
+                errInvalidCodeDesc: "يرجى التحقق من الكود المدخل أو مراجعة المشرف.",
+                errLateTitle: "❌ الطلب متأخر عن الموعد",
+                errLateDesc: "تنص اللائحة على ضرورة تقديم طلب الإجازة قبل الموعد بـ 24 ساعة على الأقل.",
+                errWeekendTitle: "ℹ️ اليوم هو عطلتك الأسبوعية بالفعل",
+                errWeekendDesc: "المجموعة التابعة لها معفاة من العمل في هذا اليوم. لا داعي لتقديم طلب إجازة.",
+                errNoForceTitle: "❌ الطلب غير متاح (قوة العمل أقل من 5)",
+                errNoForceDesc: "الزميل ({name}) في الوردية المتقابلة مصرح له بالإجازة في هذا اليوم. لا يمكن الموافقة لزميل ثانٍ في نفس الوردية لئلا تضعف القوة الإجمالية عن الحد الأدنى (5 عمال).",
+                successAvailableTitle: "✅ متاح للتقديم والموافقة",
+                successSubmitTitle: "📩 تم الإرسال بنجاح!",
+                successSubmitDesc: "تم حفظ طلبك وإرساله بنجاح إلى الإدارة لاتخاذ القرار النهائي بعد مراجعة الجدول.",
+                confirmSubmitBtn: "تأكيد وإرسال الطلب",
+                confirmClearOldAlert: "هل تريد شطب وأرشفة كافة طلبات الإجازات المعلقة المنتهية تاريخياً؟",
+                clearOldAlertSuccess: "تم تنظيف وأرشفة الطلبات المعلقة القديمة بنجاح.",
+                selectDateAlert: "يرجى اختيار تاريخ صالح للفحص أولاً.",
+                approvedBadge: "مقبول",
+                rejectedBadge: "مرفوض"
+            },
+            en: {
+                title: "Water Treatment Vacation System",
+                subtitle: "Smart 7-Interlocking-Group System",
+                btnWorker: "Worker Portal (Request Leave)",
+                btnAdmin: "Admin Portal",
+                reqTitle: "Request New Leave",
+                reqSub: "Please enter your details accurately for automated shift check",
+                idLabel: "Your ID Code:",
+                idPlaceholder: "Enter code (e.g., 21859)",
+                dateLabel: "Requested Leave Date:",
+                btnVerify: "Check Availability & Request",
+                adminLoginTitle: "Admin Login",
+                adminLoginSub: "This area is protected and restricted to management for reviewing requests.",
+                passwordPlaceholder: "Enter Password",
+                btnLogin: "Log In",
+                passwordError: "Incorrect password!",
+                pendingCountTitle: "Pending Requests Awaiting You",
+                pendingCountSub: "Current requests that require a decision:",
+                checkShiftTitle: "Check Shift Strength for Selected Date",
+                checkDatePlaceholder: "Select Date",
+                btnCalculate: "Calculate Force",
+                tableTitle: "Pending Leave Requests & Paired Shift Analysis",
+                btnClearOld: "Purge & Archive Old Pending",
+                archiveTitle: "Processed Requests Archive (Auto)",
+                thCode: "Code",
+                thName: "Name",
+                thDate: "Date",
+                thDecision: "Decision",
+                thTime: "Processed Time",
+                thGroup: "Group",
+                thDay: "Day of Week",
+                btnApprove: "Approve Leave",
+                btnReject: "Reject Request",
+                langBtn: "العربية",
+                workerNameLabel: "Worker Name:",
+                groupLabel: "Group:",
+                scheduledShiftLabel: "Scheduled Shift on this Day:",
+                statusOffDay: "Official Weekly Holiday",
+                noLeavesCo: "No approved leaves for your paired shift on this day. You can confirm your request now.",
+                coWorkersLabel: "Co-workers in the same paired shift:",
+                onDuty: "On Duty",
+                onVacation: "Approved Leave",
+                pendingRequest: "Pending Request",
+                noPending: "No pending requests currently",
+                noPendingDesc: "All requests have been successfully reviewed and processed.",
+                weeklyHolidayNotice: "official weekly day off today.",
+                holidayNoticePrefix: "On",
+                holidayNoticeSuffix: "your group is off. No need to request leave.",
+                days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                shifts: ["Morning Shift", "Afternoon Shift", "Evening Shift"],
+                errInvalidCodeTitle: "❌ Code is incorrect or not registered",
+                errInvalidCodeDesc: "Please verify the entered code or check with your supervisor.",
+                errLateTitle: "❌ Request is too late",
+                errLateDesc: "The policy requires submitting leave requests at least 24 hours in advance.",
+                errWeekendTitle: "ℹ️ Today is already your day off",
+                errWeekendDesc: "Your group is off on this day. No need to submit a request.",
+                errNoForceTitle: "❌ Request unavailable (Shift force below 5)",
+                errNoForceDesc: "Your colleague ({name}) in the paired shift is already approved for leave. We cannot approve a second leave to maintain shift safety (min 5 workers).",
+                successAvailableTitle: "✅ Available for Submission",
+                successSubmitTitle: "📩 Submitted Successfully!",
+                successSubmitDesc: "Your request has been saved and sent to management for final review.",
+                confirmSubmitBtn: "Confirm & Send Request",
+                confirmClearOldAlert: "Are you sure you want to clear and archive all historical pending requests?",
+                clearOldAlertSuccess: "Old pending requests successfully cleared and archived.",
+                selectDateAlert: "Please select a valid date for check first.",
+                approvedBadge: "Approved",
+                rejectedBadge: "Rejected"
+            }
+        };
+
+        let appState = {
+            requests: [],
+            lang: 'ar' // اللغة الافتراضية
+        };
+
+        function initApp() {
+            const savedState = localStorage.getItem('water_treatment_state_v2');
+            if (savedState) {
+                appState = JSON.parse(savedState);
+            }
+            if (!appState.lang) {
+                appState.lang = 'ar';
+            }
+            updateUI();
+            updateAdminDashboard();
+        }
+
+        function saveState() {
+            localStorage.setItem('water_treatment_state_v2', JSON.stringify(appState));
+            updateAdminDashboard();
+        }
+
+        // تطبيق تغيير النصوص والاتجاه بالكامل للواجهة
+        function updateUI() {
+            const currentLang = appState.lang || 'ar';
+            
+            // تغيير اتجاه الصفحة ولغة المستند
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = currentLang;
+
+            // تغيير جميع عناصر data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerText = translations[currentLang][key];
+                }
+            });
+
+            // التعامل مع نصوص الـ placeholder للمدخلات
+            const idInput = document.getElementById('workerCode');
+            if (idInput) idInput.placeholder = translations[currentLang].idPlaceholder;
+            
+            const passInput = document.getElementById('adminPassword');
+            if (passInput) passInput.placeholder = translations[currentLang].passwordPlaceholder;
+
+            // تحديث نص زر اللغة في الهيدر
+            document.getElementById('langBtnText').innerText = currentLang === 'ar' ? 'English' : 'العربية';
+        }
+
+        // تبديل لغة التطبيق وحفظ التفضيل
+        function toggleLanguage() {
+            appState.lang = appState.lang === 'ar' ? 'en' : 'ar';
+            saveState();
+            updateUI();
+            // إخفاء صندوق النتيجة لتجنب عرض نصوص بلغة أخرى بعد التحويل
+            document.getElementById('resultBox').classList.add('hidden');
+        }
+
+        // توزيع الورديات المتقابلة للـ 6 مجموعات النشطة يومياً
+        function getShiftPairs(dayOfWeek) {
+            switch(dayOfWeek) {
+                case 0: // الأحد (مجموعة 5 إجازة)
+                    return [
+                        { name: "الوردية الصباحية", groups: [1, 2] },
+                        { name: "الوردية العصرية", groups: [3, 4] },
+                        { name: "الوردية المسائية", groups: [6, 7] }
+                    ];
+                case 1: // الاثنين (مجموعة 3 إجازة)
+                    return [
+                        { name: "الوردية الصباحية", groups: [1, 2] },
+                        { name: "الوردية العصرية", groups: [4, 6] },
+                        { name: "الوردية المسائية", groups: [5, 7] }
+                    ];
+                case 2: // الثلاثاء (مجموعة 1 إجازة)
+                    return [
+                        { name: "الوردية الصباحية", groups: [2, 3] },
+                        { name: "الوردية العصرية", groups: [4, 5] },
+                        { name: "الوردية المسائية", groups: [6, 7] }
+                    ];
+                case 3: // الأربعاء (مجموعة 6 إجازة)
+                    return [
+                        { name: "الوردية الصباحية", groups: [1, 3] },
+                        { name: "الوردية العصرية", groups: [2, 4] },
+                        { name: "الوردية المسائية", groups: [5, 7] }
+                    ];
+                case 4: // الخميس (مجموعة 4 إجازة)
+                    return [
+                        { name: "الوردية الصباحية", groups: [1, 5] },
+                        { name: "الوردية العصرية", groups: [2, 6] },
+                        { name: "الوردية المسائية", groups: [3, 7] }
+                    ];
+                case 5: // الجمعة (مجموعة 2 إجازة)
+                    return [
+                        { name: "الوردية الصباحية", groups: [1, 3] },
+                        { name: "الوردية العصرية", groups: [4, 5] },
+                        { name: "الوردية المسائية", groups: [6, 7] }
+                    ];
+                case 6: // السبت (مجموعة 7 إجازة)
+                    return [
+                        { name: "الوردية الصباحية", groups: [1, 2] },
+                        { name: "الوردية العصرية", groups: [3, 4] },
+                        { name: "الوردية المسائية", groups: [5, 6] }
+                    ];
+                default:
+                    return [];
+            }
+        }
+
+        function getPartnerGroup(group, dayOfWeek) {
+            const shifts = getShiftPairs(dayOfWeek);
+            for (let shift of shifts) {
+                if (shift.groups.includes(group)) {
+                    return shift.groups.find(g => g !== group);
+                }
+            }
+            return null;
+        }
+
+        function switchPortal(portal) {
+            document.querySelectorAll('.portal-section').forEach(section => section.classList.add('hidden'));
+            const btnWorker = document.getElementById('btnWorkerPortal');
+            const btnAdmin = document.getElementById('btnAdminPortal');
+
+            if (portal === 'worker') {
+                document.getElementById('workerPortal').classList.remove('hidden');
+                btnWorker.className = "w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg transition duration-300 transform hover:scale-105 bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20 border border-cyan-400/30";
+                btnAdmin.className = "w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg transition duration-300 transform hover:scale-105 bg-slate-800 text-slate-300 hover:text-white border border-slate-700 hover:bg-slate-750";
+            } else {
+                document.getElementById('adminPortal').classList.remove('hidden');
+                btnAdmin.className = "w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg transition duration-300 transform hover:scale-105 bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20 border border-indigo-400/30";
+                btnWorker.className = "w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-lg transition duration-300 transform hover:scale-105 bg-slate-800 text-slate-300 hover:text-white border border-slate-700 hover:bg-slate-750";
+            }
+        }
+
+        function verifyAdminPassword() {
+            const pass = document.getElementById('adminPassword').value;
+            const errorElement = document.getElementById('authError');
+            if (pass === "admin123") {
+                document.getElementById('adminAuthSection').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                errorElement.classList.add('hidden');
+            } else {
+                errorElement.classList.remove('hidden');
+            }
+        }
+
+        let currentValidatedRequest = null;
+
+        function checkAndVerifyRequest() {
+            const codeInput = document.getElementById('workerCode').value.trim();
+            const dateInput = document.getElementById('vacationDate').value;
+            const resultBox = document.getElementById('resultBox');
+            const resultStatus = document.getElementById('resultStatus');
+            const resultDetails = document.getElementById('resultDetails');
+            const btnSubmit = document.getElementById('btnSubmitRequest');
+
+            const currentLang = appState.lang || 'ar';
+
+            resultBox.classList.add('hidden');
+            btnSubmit.classList.add('hidden');
+
+            if (!codeInput || !dateInput) {
+                alert(currentLang === 'ar' ? "يرجى إدخال الكود واختيار التاريخ المطلوب أولاً." : "Please enter code and select date first.");
+                return;
+            }
+
+            const worker = workersDatabase.find(w => w.code === codeInput);
+            if (!worker) {
+                resultBox.className = "mt-8 p-5 rounded-2xl border text-center bg-red-500/10 border-red-500/25 text-red-400 block transform scale-100 opacity-100";
+                resultStatus.innerText = translations[currentLang].errInvalidCodeTitle;
+                resultDetails.innerHTML = `<p class="text-slate-300 text-sm">${translations[currentLang].errInvalidCodeDesc}</p>`;
+                return;
+            }
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const reqDate = new Date(dateInput);
+            reqDate.setHours(0,0,0,0);
+
+            const diffTime = reqDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const dayOfWeek = reqDate.getDay();
+
+            // حساب الوردية ومواعيد العمل المقررة للعامل في هذا اليوم
+            const shifts = getShiftPairs(dayOfWeek);
+            let workerShiftName = translations[currentLang].statusOffDay;
+            for (let i = 0; i < shifts.length; i++) {
+                if (shifts[i].groups.includes(worker.group)) {
+                    workerShiftName = translations[currentLang].shifts[i];
+                    break;
+                }
+            }
+
+            // قالب بطاقة بيانات العامل المقررة
+            const workerCardHtml = `
+                <div class="bg-slate-900/50 p-5 rounded-2xl mb-5 text-start border border-slate-700/60 space-y-3">
+                    <p class="text-slate-300 text-sm"><span class="font-bold text-cyan-400"><i class="fa-solid fa-user ms-1"></i> ${translations[currentLang].workerNameLabel}</span> <span class="text-white font-semibold">${worker.name}</span></p>
+                    <p class="text-slate-300 text-sm"><span class="font-bold text-cyan-400"><i class="fa-solid fa-users ms-1"></i> ${translations[currentLang].groupLabel}</span> ${translations[currentLang].thGroup} ${worker.group}</p>
+                    <p class="text-slate-300 text-sm"><span class="font-bold text-cyan-400"><i class="fa-solid fa-clock ms-1"></i> ${translations[currentLang].scheduledShiftLabel}</span> <span class="text-white font-extrabold bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">${workerShiftName}</span></p>
+                </div>
+            `;
+
+            // 1. فحص شرط الـ 24 ساعة
+            if (diffDays < 1) {
+                resultBox.className = "mt-8 p-5 rounded-2xl border text-center bg-red-500/10 border-red-500/25 text-red-400 block transform scale-100 opacity-100";
+                resultStatus.innerText = translations[currentLang].errLateTitle;
+                resultDetails.innerHTML = workerCardHtml + `
+                    <p class="text-red-300 text-sm font-medium mt-2">${translations[currentLang].errLateDesc}</p>
+                `;
+                return;
+            }
+
+            // 2. فحص إذا كان اليوم المحدد عطلة رسمية للعامل
+            if (groupWeekendMapping[worker.group].dayNum === dayOfWeek) {
+                resultBox.className = "mt-8 p-5 rounded-2xl border text-center bg-amber-500/10 border-amber-500/25 text-amber-400 block transform scale-100 opacity-100";
+                resultStatus.innerText = translations[currentLang].errWeekendTitle;
+                
+                const groupHolidayMsg = currentLang === 'ar' 
+                    ? `المجموعة ${worker.group} التابع لها في عطلة رسمية معفاة من العمل يوم ${translations[currentLang].days[dayOfWeek]}. لا داعي لتقديم طلب إجازة.`
+                    : `Group ${worker.group} is on its official weekly day off on ${translations[currentLang].days[dayOfWeek]}. No need to request leave.`;
+
+                resultDetails.innerHTML = `
+                    <div class="bg-slate-900/50 p-5 rounded-2xl mb-5 text-start border border-slate-700/60 space-y-3">
+                        <p class="text-slate-300 text-sm"><span class="font-bold text-amber-400"><i class="fa-solid fa-user ms-1"></i> ${translations[currentLang].workerNameLabel}</span> <span class="text-white font-semibold">${worker.name}</span></p>
+                        <p class="text-slate-300 text-sm"><span class="font-bold text-amber-400"><i class="fa-solid fa-users ms-1"></i> ${translations[currentLang].groupLabel}</span> ${translations[currentLang].thGroup} ${worker.group}</p>
+                        <p class="text-slate-300 text-sm"><span class="font-bold text-amber-400"><i class="fa-solid fa-calendar-day ms-1"></i> ${translations[currentLang].thDay}:</span> ${translations[currentLang].days[dayOfWeek]} (${translations[currentLang].statusOffDay})</p>
+                    </div>
+                    <p class="text-amber-300 text-sm font-medium">${groupHolidayMsg}</p>
+                `;
+                return;
+            }
+
+            const partnerGroup = getPartnerGroup(worker.group, dayOfWeek);
+            if (!partnerGroup) {
+                resultBox.className = "mt-8 p-5 rounded-2xl border text-center bg-red-500/10 border-red-500/25 text-red-400 block transform scale-100 opacity-100";
+                resultStatus.innerText = currentLang === 'ar' ? "❌ تعذر تحديد الوردية المتقابلة" : "❌ Paired shift not found";
+                resultDetails.innerHTML = workerCardHtml + `<p class="text-red-300 text-sm">${currentLang === 'ar' ? "تواصل مع الإدارة لحل الخلل البرمجي فوراً." : "Please contact system admin."}</p>`;
+                return;
+            }
+
+            // 3. فحص تعارض مع الزملاء بالوردية المتقابلة
+            const approvedOnDate = appState.requests.filter(r => 
+                r.date === dateInput && 
+                r.status === 'approved' && 
+                (r.group === worker.group || r.group === partnerGroup)
+            );
+
+            if (approvedOnDate.length >= 1) {
+                const colleague = approvedOnDate[0];
+                resultBox.className = "mt-8 p-5 rounded-2xl border text-center bg-red-500/10 border-red-500/25 text-red-400 block transform scale-100 opacity-100";
+                resultStatus.innerText = translations[currentLang].errNoForceTitle;
+                
+                const formattedErr = translations[currentLang].errNoForceDesc.replace("{name}", colleague.name);
+                resultDetails.innerHTML = workerCardHtml + `
+                    <p class="text-red-300 text-sm font-medium mt-2">
+                        ${formattedErr}
+                    </p>
+                `;
+                return;
+            }
+
+            // 4. الطلب متاح ومكتمل الشروط
+            resultBox.className = "mt-8 p-5 rounded-2xl border text-center bg-emerald-500/10 border-emerald-500/25 text-emerald-400 block transform scale-100 opacity-100";
+            resultStatus.innerText = translations[currentLang].successAvailableTitle;
+            resultDetails.innerHTML = workerCardHtml + `
+                <p class="text-emerald-300 text-sm font-medium mt-2">
+                    ${translations[currentLang].noLeavesCo}
+                </p>
+            `;
+            btnSubmit.classList.remove('hidden');
+
+            currentValidatedRequest = {
+                id: Date.now().toString(),
+                code: worker.code,
+                name: worker.name,
+                group: worker.group,
+                date: dateInput,
+                status: 'pending',
+                timestamp: new Date().toISOString()
+            };
+        }
+
+        function finalizeRequestSubmission() {
+            if (!currentValidatedRequest) return;
+            
+            const currentLang = appState.lang || 'ar';
+            const exists = appState.requests.some(r => r.code === currentValidatedRequest.code && r.date === currentValidatedRequest.date);
+            if (exists) {
+                alert(currentLang === 'ar' ? "هذا الطلب مسجل بالنظام بالفعل وقيد مراجعة الإدارة." : "This request is already registered and awaiting admin review.");
+                return;
+            }
+
+            appState.requests.push(currentValidatedRequest);
+            saveState();
+
+            document.getElementById('workerCode').value = '';
+            document.getElementById('vacationDate').value = '';
+            
+            const resultBox = document.getElementById('resultBox');
+            resultBox.className = "mt-8 p-5 rounded-2xl border text-center bg-blue-500/10 border-blue-500/25 text-blue-400 block transform scale-100 opacity-100";
+            document.getElementById('resultStatus').innerText = translations[currentLang].successSubmitTitle;
+            document.getElementById('resultDetails').innerHTML = `<p class='text-sm text-slate-300'>${translations[currentLang].successSubmitDesc}</p>`;
+            document.getElementById('btnSubmitRequest').classList.add('hidden');
+            
+            currentValidatedRequest = null;
+        }
+
+        // تحديث لوحة التحكم وإعادة بناء بطاقات طلبات الإجازات المعلقة ذكياً للمسؤول
+        function updateAdminDashboard() {
+            const pendingCardsContainer = document.getElementById('pendingRequestsCardsContainer');
+            const archiveTable = document.getElementById('archivedRequestsTable');
+            const pendingCountBadge = document.getElementById('pendingCountBadge');
+
+            const currentLang = appState.lang || 'ar';
+
+            pendingCardsContainer.innerHTML = '';
+            archiveTable.innerHTML = '';
+
+            let pendingCount = 0;
+
+            appState.requests.forEach(req => {
+                const reqDate = new Date(req.date);
+                const dayName = translations[currentLang].days[reqDate.getDay()];
+                const dayOfWeek = reqDate.getDay();
+
+                if (req.status === 'pending') {
+                    pendingCount++;
+
+                    // 1. حساب اسم الوردية المحددة للطلب والمجموعات المتقابلة المقترنة
+                    const shifts = getShiftPairs(dayOfWeek);
+                    let workerShiftName = "N/A";
+                    let pairedGroups = [];
+                    for (let i = 0; i < shifts.length; i++) {
+                        if (shifts[i].groups.includes(req.group)) {
+                            workerShiftName = translations[currentLang].shifts[i];
+                            pairedGroups = shifts[i].groups; // مثلاً: [1, 2]
+                            break;
+                        }
+                    }
+
+                    // 2. تصفية وجلب العمال الـ 5 الآخرين المشتركين في نفس الوردية المتقابلة
+                    const coWorkers = workersDatabase.filter(w => 
+                        pairedGroups.includes(w.group) && w.code !== req.code
+                    );
+
+                    // 3. بناء واجهة الزملاء وحالتهم في هذا اليوم المحدد للإجازة
+                    let coWorkersHtml = coWorkers.map(cw => {
+                        const status = appState.requests.find(r => r.code === cw.code && r.date === req.date);
+                        let badge = `<span class="text-emerald-400 text-xs font-bold"><i class="fa-solid fa-circle-check ms-1"></i>${translations[currentLang].onDuty}</span>`;
+                        if (status && status.status === 'approved') {
+                            badge = `<span class="text-red-400 text-xs font-bold"><i class="fa-solid fa-circle-xmark ms-1"></i>${translations[currentLang].onVacation}</span>`;
+                        } else if (status && status.status === 'pending') {
+                            badge = `<span class="text-amber-400 text-xs font-bold"><i class="fa-solid fa-clock ms-1"></i>${translations[currentLang].pendingRequest}</span>`;
+                        }
+                        return `
+                            <div class="flex justify-between items-center bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50">
+                                <span class="text-slate-300 font-medium text-xs">${cw.name} <span class="text-slate-500 text-[10px]">(${translations[currentLang].thGroup} ${cw.group})</span></span>
+                                ${badge}
+                            </div>
+                        `;
+                    }).join('');
+
+                    // 4. بناء البطاقة التفاعلية الكاملة للمسؤول
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-800 rounded-3xl p-6 border border-slate-700 shadow-xl flex flex-col justify-between space-y-4";
+                    card.innerHTML = `
+                        <div>
+                            <!-- الجزء العلوي: بيانات صاحب الطلب والوردية -->
+                            <div class="flex justify-between items-start border-b border-slate-700 pb-3">
+                                <div class="text-start">
+                                    <h4 class="text-lg font-extrabold text-white">${req.name}</h4>
+                                    <p class="text-xs text-cyan-400 font-bold mt-1">${translations[currentLang].thCode}: ${req.code} | ${translations[currentLang].thGroup} ${req.group}</p>
+                                </div>
+                                <div class="text-end">
+                                    <span class="px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-full text-xs font-black">${dayName} ${req.date}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- تفاصيل الوردية المقررة ومواعيدها -->
+                            <div class="mt-4 space-y-4">
+                                <p class="text-sm text-slate-300 text-start">
+                                    <span class="font-bold text-slate-400"><i class="fa-solid fa-clock ms-1 text-cyan-400"></i> ${translations[currentLang].scheduledShiftLabel}</span> 
+                                    <span class="text-white font-extrabold bg-slate-900 px-3 py-1 rounded-lg border border-slate-750">${workerShiftName}</span>
+                                </p>
+                                
+                                <!-- بقية العمال بالوردية المتقابلة وحالتهم -->
+                                <div class="space-y-2 mt-3 text-start">
+                                    <p class="text-xs font-bold text-slate-400 mb-1">
+                                        <i class="fa-solid fa-users-viewfinder ms-1 text-cyan-500"></i> ${translations[currentLang].coWorkersLabel} (${pairedGroups.join(' & ')}):
+                                    </p>
+                                    <div class="grid grid-cols-1 gap-1.5">
+                                        ${coWorkersHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- أزرار اتخاذ القرار -->
+                        <div class="flex gap-3 pt-4 border-t border-slate-700">
+                            <button onclick="changeRequestStatus('${req.id}', 'approved')" class="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-emerald-600/15 transition transform active:scale-95 text-center text-sm">
+                                <i class="fa-solid fa-check ms-1"></i> ${translations[currentLang].btnApprove}
+                            </button>
+                            <button onclick="changeRequestStatus('${req.id}', 'rejected')" class="flex-1 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white font-black py-3 rounded-xl shadow-lg shadow-red-600/15 transition transform active:scale-95 text-center text-sm">
+                                <i class="fa-solid fa-xmark ms-1"></i> ${translations[currentLang].btnReject}
+                            </button>
+                        </div>
+                    `;
+                    pendingCardsContainer.appendChild(card);
+                } else {
+                    // الأرشيف والطلبات التاريخية
+                    const statusColor = req.status === 'approved' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20';
+                    const statusText = req.status === 'approved' ? translations[currentLang].approvedBadge : translations[currentLang].rejectedBadge;
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-700/10 transition border-b border-slate-700/30 text-slate-400";
+                    tr.innerHTML = `
+                        <td class="p-4 font-bold text-slate-300">${req.code}</td>
+                        <td class="p-4 text-slate-300">${req.name}</td>
+                        <td class="p-4 text-slate-200 font-bold">${req.date}</td>
+                        <td class="p-4 text-xs"><span class="px-2.5 py-1 rounded-full border ${statusColor} font-black">${statusText}</span></td>
+                        <td class="p-4 text-xs text-slate-500">${new Date(req.timestamp).toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US')}</td>
+                    `;
+                    archiveTable.appendChild(tr);
+                }
+            });
+
+            pendingCountBadge.innerText = pendingCount;
+
+            // إذا لم يكن هناك طلبات معلقة حالياً
+            if (pendingCount === 0) {
+                pendingCardsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-10 text-slate-500">
+                        <span class="text-6xl text-slate-750 mb-4 inline-block"><i class="fa-solid fa-square-check"></i></span>
+                        <p class="text-lg font-bold">${translations[currentLang].noPending}</p>
+                        <p class="text-xs text-slate-600 mt-1">${translations[currentLang].noPendingDesc}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function changeRequestStatus(id, newStatus) {
+            const req = appState.requests.find(r => r.id === id);
+            if (req) {
+                req.status = newStatus;
+                req.timestamp = new Date().toISOString();
+                saveState();
+            }
+        }
+
+        function clearAllExpiredRequests() {
+            const currentLang = appState.lang || 'ar';
+            if (confirm(translations[currentLang].confirmClearOldAlert)) {
+                const todayStr = new Date().toISOString().split('T')[0];
+                appState.requests.forEach(req => {
+                    if (req.date < todayStr && req.status === 'pending') {
+                        req.status = 'rejected';
+                        req.timestamp = new Date().toISOString();
+                    }
+                });
+                saveState();
+                alert(translations[currentLang].clearOldAlertSuccess);
+            }
+        }
+
+        function checkShiftStrength() {
+            const inputDate = document.getElementById('checkDateInput').value;
+            const resultDiv = document.getElementById('shiftStrengthResult');
+            const currentLang = appState.lang || 'ar';
+
+            if (!inputDate) {
+                alert(translations[currentLang].selectDateAlert);
+                return;
+            }
+
+            const checkDate = new Date(inputDate);
+            const dayOfWeek = checkDate.getDay();
+            const weekendGroup = Object.keys(groupWeekendMapping).find(key => groupWeekendMapping[key].dayNum === dayOfWeek);
+            const shifts = getShiftPairs(dayOfWeek);
+
+            resultDiv.innerHTML = '';
+            resultDiv.classList.remove('hidden');
+
+            const holidayDayName = translations[currentLang].days[dayOfWeek];
+            
+            const groupWeekendObj = groupWeekendMapping[weekendGroup];
+            const displayGroupName = currentLang === 'ar' ? groupWeekendObj.nameAr : groupWeekendObj.nameEn;
+
+            let htmlStr = `
+                <div class="p-4 bg-indigo-500/10 border border-indigo-500/25 rounded-2xl text-indigo-300 font-bold text-center mb-4 text-sm">
+                     <i class="fa-solid fa-umbrella-beach ms-1 text-indigo-400"></i> ${translations[currentLang].holidayNoticePrefix} ${holidayDayName} - ${translations[currentLang].thGroup} (${weekendGroup}) ${translations[currentLang].weeklyHolidayNotice}
+                </div>
+            `;
+
+            shifts.forEach((shift) => {
+                const groupA = shift.groups[0];
+                const groupB = shift.groups[1];
+
+                const shiftWorkers = workersDatabase.filter(w => w.group === groupA || w.group === groupB);
+                const approvedLeaves = appState.requests.filter(r => 
+                    r.date === inputDate && 
+                    r.status === 'approved' && 
+                    (r.group === groupA || r.group === groupB)
+                );
+
+                const activeCount = shiftWorkers.length - approvedLeaves.length;
+                let bgClass = "bg-emerald-500/5 border-emerald-500/15 text-emerald-300";
+                let badgeClass = "bg-emerald-500/20 text-emerald-400";
+                
+                if (activeCount < 5) {
+                    bgClass = "bg-red-500/5 border-red-500/15 text-red-300";
+                    badgeClass = "bg-red-500/20 text-red-400";
+                } else if (activeCount === 5) {
+                    bgClass = "bg-amber-500/5 border-amber-500/15 text-amber-300";
+                    badgeClass = "bg-amber-500/20 text-amber-400";
+                }
+
+                // ترجمة اسم الشفت
+                let displayShiftName = "";
+                if (shift.name.includes("الصباحية")) displayShiftName = translations[currentLang].shifts[0];
+                else if (shift.name.includes("العصرية")) displayShiftName = translations[currentLang].shifts[1];
+                else if (shift.name.includes("المسائية")) displayShiftName = translations[currentLang].shifts[2];
+
+                htmlStr += `
+                    <div class="p-4 border rounded-2xl ${bgClass} flex justify-between items-center transition">
+                        <div class="text-start">
+                            <span class="font-bold text-base block text-white">${displayShiftName}</span> 
+                            <span class="text-xs text-slate-400 block mt-0.5">${translations[currentLang].coWorkersLabel.replace(':', '')} (${groupA} & ${groupB})</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-sm font-black px-3.5 py-1.5 rounded-full ${badgeClass}">${currentLang === 'ar' ? 'القوة' : 'Force'}: ${activeCount} / 6</span>
+                            ${approvedLeaves.length > 0 ? `<span class="text-[11px] block text-rose-400 mt-2 font-bold">${currentLang === 'ar' ? 'المجاز' : 'On Leave'}: ${approvedLeaves.map(al => al.name).join(', ')}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultDiv.innerHTML = htmlStr;
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
+2m14.8s
